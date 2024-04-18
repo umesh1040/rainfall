@@ -1,0 +1,5 @@
+scikit-learn==1.2.2
+scikit-metrics==0.1.0
+pandas  
+pickle
+xgboost

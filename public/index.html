@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="=width=device-width, initial-scale=1.0">
+    <title>Rainfall App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="card">
+        <div class="search">
+            <input type="text" placeholder="Enter city name" spellcheck="false">
+            <button><img src="images/search.png"></button>
+        </div>
+        <div class="error">
+            <p>Invalid City name</p>
+        </div>
+        <div class="weather">
+            <img src="images/rain.png" class="weather-icon">
+            <p class="prediction"> </p>
+            <h1 class="temp">22°c</h1>
+            <h2 class="city">Kolhapur</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="images/humidity.png">
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="images/wind.png">
+                    <div>
+                        <p class="wind">15 km/h</p>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const apiKey = "745775174ceb63e853396dd3e7de6703";
+            const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+            const searchBox = document.querySelector(".search input");
+            const searchBtn = document.querySelector(".search button");
+            const weatherIcon = document.querySelector(".weather-icon");
+
+            const weather_mapping = {
+                0: 'Partly cloudy',
+                1: 'Sunny',
+                2: 'Cloudy',
+                3: 'Fog',
+                4: 'Light rain',
+                5: 'Moderate rain',
+                6: 'Thundery outbreaks possible',
+                7: 'Heavy rain at times',
+                8: 'Moderate or heavy rain with thunder',
+                9: 'Patchy light snow with thunder',
+                10: 'Moderate or heavy snow showers',
+                11: 'Light snow showers',
+                12: 'Light sleet'
+            };
+            async function checkWeather(city) {
+                const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+                var data = await response.json();
+                let data1
+                console.log(data);
+
+
+                if (response.status == 404) {
+                    document.querySelector(".error").style.display = "block";
+                    document.querySelector(".weather").style.display = "none";
+                } else
+                {
+                document.querySelector(".city").innerHTML = data.name;
+                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°c";
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                document.querySelector(".wind").innerHTML = data.wind.speed + "km/h";
+                const queryParams = new URLSearchParams();
+                queryParams.append('temperature_celsius', Math.round(data.main.temp).toString());
+                queryParams.append('wind_mph', data.wind.speed.toString());
+                queryParams.append('pressure_in', data.main.pressure.toString());
+                queryParams.append('humidity', data.main.humidity.toString());
+                queryParams.append('cloud', data.clouds.all.toString());
+                queryParams.append('visibility_km', data.visibility.toString());
+
+                const response1 = await fetch(`/app?${queryParams.toString()}`);
+                data1 = await response1.json();
+                console.log(data1);
+                }
+                
+                if (data1.xgb_predictions !== undefined) {
+                    const weather_code = data1.xgb_predictions;
+                    const weather_condition = weather_mapping[weather_code];
+                    console.log("Predicted weather:", weather_condition);
+                    document.querySelector(".prediction").innerHTML = "Predicted: "+weather_condition;
+                }
+                if (data.weather[0].main == "Clouds") {
+                    weatherIcon.src = "images/clouds.png";
+                }
+
+                else if (data.weather[0].main == "Clear") {
+                    weatherIcon.src = "images/Clear.png";
+                }
+
+                else if (data.weather[0].main == "Rain") {
+                    weatherIcon.src = "images/rain.png";
+                }
+
+                else if (data.weather[0].main == "Drizzle") {
+                    weatherIcon.src = "images/drizzle.png";
+                }
+                else if (data.weather[0].main == "Mist") {
+                    weatherIcon.src = "images/mist.png";
+                }
+
+                document.querySelector(".weather").style.display = "block";
+                document.querySelector(".error").style.display = "none";
+
+            }
+
+
+            searchBtn.addEventListener("click", () => {
+                checkWeather(searchBox.value);
+            })
+
+
+        </script>
+</body>
+
+</html>
