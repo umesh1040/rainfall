@@ -15,7 +15,14 @@ app.get('/', (req,d= res) => {
 app.get('/app', (req, res) => {  
   let largeDataSet = [];
   // spawn new child process to call the python script
-  const python = spawn('python3', ['script2.py', JSON.stringify(req.query)]); // Pass arguments to the Python script
+  let python = {
+    mode: 'text',
+    pythonPath: 'python',
+    pythonOptions: ['-u'], // get print results in real-time
+    scriptPath: 'script2.py',
+    args: [JSON.stringify(req.query)]
+};
+  //const python = spawn('python3', ['script2.py', JSON.stringify(req.query)]); // Pass arguments to the Python script
 
   // collect data from script
   python.stdout.on('data', function (data) {
